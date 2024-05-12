@@ -52,8 +52,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.javaParameters = true
 }
 
-tasks.register<Copy>("copyPreCommitHooks") {
-    from("git-hooks", "pre-commit")
+tasks.register<Copy>("installGitHooks") {
+    from("git-hooks")
     into {
         File(rootProject.rootDir, ".git/hooks")
     }
