@@ -13,7 +13,9 @@ class GreetingResource(
 ) {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    fun hello(@NotNull @QueryParam(value = "name") name: String): ResponseDto {
+    fun hello(
+        @NotNull @QueryParam(value = "name") name: String
+    ): ResponseDto {
         val message = greetingService.greeting(name)
         return ResponseDto(message)
     }

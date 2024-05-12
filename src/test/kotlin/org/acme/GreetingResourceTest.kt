@@ -18,5 +18,4 @@ class GreetingResourceTest {
             .contentType(ContentType.JSON)
             .body(`is`("{\"message\":\"Guten Tag test\"}"))
     }
-
 }

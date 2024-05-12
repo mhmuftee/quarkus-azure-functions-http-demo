@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.allopen") version "1.9.23"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     id("io.quarkus")
 }
 
@@ -14,7 +15,7 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
-    implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-azure-functions-http")
@@ -49,4 +50,11 @@ allOpen {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = JavaVersion.VERSION_21.toString()
     kotlinOptions.javaParameters = true
+}
+
+tasks.register<Copy>("copyPreCommitHooks") {
+    from(rootProject.rootDir,"scripts", "pre-commit-format")
+    into {
+        ".git/hooks"
+    }
 }
