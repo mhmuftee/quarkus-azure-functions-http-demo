@@ -53,8 +53,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 }
 
 tasks.register<Copy>("copyPreCommitHooks") {
-    from(rootProject.rootDir,"scripts", "pre-commit-format")
+    from("git-hooks", "pre-commit")
     into {
-        ".git/hooks"
+        File(rootProject.rootDir, ".git/hooks")
     }
+    setFileMode(777)
 }
