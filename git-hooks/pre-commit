@@ -1,36 +1,49 @@
 #!/bin/bash
 
-echo "Running ktlintFormat before commiting code..."
+echo "Running ktlintFormat before committing code..."
 
-# stash the current index with unstaged changes
+# Stash the current index with unstaged changes, keeping the staged changes intact
 git stash -q --keep-index
 
-# check for any formatting errors in the staged changes
+# Run the ktlintFormat task to format the staged Kotlin files
 ./gradlew ktlintFormat
 
+# Capture the result of the ktlintFormat task
 RESULT=$?
 
+# Pop the stash to restore any unstaged changes
 git stash pop -q
 
-# if result is nonzero exit the process, as there were some failures
-[ $RESULT -ne 0 ] && exit 1
+# If the ktlintFormat task failed (non-zero result), print a message and exit with status 1 to prevent the commit
+if [ $RESULT -ne 0 ]; then
+    echo "Formatting errors detected, please fix them before committing."
+    exit 1
+fi
 
-# get staged kotlin files (not deleted)
-CHANGED_KOTLIN_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.kts|\.kt/ { print $2}')"
+# Get the list of staged Kotlin files that are not deleted
+# The git diff command checks the index and prints file paths that end with .kt or .kts and are not marked as deleted
+CHANGED_KOTLIN_FILES=$(git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.kts|\.kt/ { print $2 }')
 
+# If no Kotlin files are staged, print a message and exit with status 0
 if [ -z "$CHANGED_KOTLIN_FILES" ]; then
-    echo "No Kotlin staged files found"
+    echo "No staged Kotlin files found"
     exit 0
-fi;
+fi
 
+# Print the list of staged Kotlin files to be formatted
 echo "Formatting these files: "
 echo "$CHANGED_KOTLIN_FILES"
 
+# Run the ktlintFormat task again, but this time with a filter to only format the staged Kotlin files
 ./gradlew --quiet ktlintFormat -PinternalKtlintGitFilter="$CHANGED_KOTLIN_FILES"
 
+# Loop through the list of staged Kotlin files and re-add them to the index
+# This ensures that any changes made by ktlintFormat are included in the commit
 echo "$CHANGED_KOTLIN_FILES" | while read -r file; do
     if [ -f "$file" ]; then
         git add "$file"
     fi
 done
+
+# Print a completion message
 echo "Completed ktlintFormat pre-commit"
