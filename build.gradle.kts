@@ -59,3 +59,7 @@ tasks.register<Copy>("installGitHooks") {
     }
     setFileMode(777)
 }
+
+tasks.named("build") {
+    dependsOn("installGitHooks")
+}
