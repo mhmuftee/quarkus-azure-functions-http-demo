@@ -57,7 +57,13 @@ tasks.register<Copy>("installGitHooks") {
     into {
         File(rootProject.rootDir, ".git/hooks")
     }
-    setFileMode(777)
+
+    filePermissions {
+        user {
+            read = true
+            execute = true
+        }
+    }
 }
 
 tasks.named("compileKotlin") {
